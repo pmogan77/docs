@@ -7,26 +7,34 @@ keywords: >
 title: Artifactory integration
 ---
 
-> **Note**
->
-> Docker Scout is an [early access](../release-lifecycle.md#early-access-ea)
-> product.
->
-> If you're interested in this integration for your organization and want to
-> learn more, get in touch by filling out the contact form on the
-> [Docker Scout product page](https://docker.com/products/docker-scout){:
-> target="\_blank" rel="noopener" }.
+{% include scout-early-access.md %}
 
 Integrating Docker Scout with JFrog Artifactory lets you run image analysis
 automatically on images in your Artifactory registries.
 
-This integration is made possible by a monitoring agent. The agent is a
+## Local image analysis
+
+You can analyze Artifactory images for vulnerabilities locally using Docker Desktop or the Docker CLI. You first need to authenticate with JFrog Artifactory using the `[Docker login](/engine/reference/commandline/login/)` command. For example:
+
+```bash
+docker login {URL}
+```
+
+> **Tip**
+>
+> For cloud-hosted Artifactory you can find the credentials for your Artifactory repository by
+> selecting it in the Artifactory UI and then the **Set Me Up** button.
+{: .tip }
+
+## Remote image analysis
+
+To automatically analyze images running in remote environments you need to deploy the Docker Scout Artifactory agent. The agent is a
 standalone service that analyzes images and uploads the result to Docker Scout.
 You can view the results using the
 [Docker Scout web UI](https://dso.docker.com/){: target="\_blank" rel="noopener"
 }.
 
-## How it works
+### How the agent works
 
 The Docker Scout Artifactory agent is available as an
 [image on Docker Hub](https://hub.docker.com/r/docker/artifactory-agent){:
@@ -43,10 +51,9 @@ SBOMs for all of its base images. The recorded SBOMs include both Operating
 System (OS)-level and application-level programs or dependencies that the image
 contains.
 
-Additionally, the agent sends the following metadata about the image to Docker Scout to 
-record:
+Additionally, the agent sends the following metadata about the image to Docker Scout:
 
-- The source repository for the image
+- The source repository URL and commit SHA for the image
 - Build instructions
 - Build date
 - Tags and digest
@@ -59,11 +66,11 @@ itself, nor any data inside the image, such as code, binaries, and layer blobs.
 The agent doesn't detect and analyze pre-existing images. It only analyzes
 images that appear in the registry while the agent is running.
 
-## Deploy the agent
+### Deploy the agent
 
 This section describes the steps for deploying the Artifactory agent.
 
-### Prerequisites
+#### Prerequisites
 
 Before you deploy the agent, ensure that you meet the prerequisites:
 
@@ -78,7 +85,7 @@ Before you deploy the agent, ensure that you meet the prerequisites:
 The agent supports all versions of JFrog Artifactory and JFrog Container
 Registry.
 
-### Create the configuration file
+#### Create the configuration file
 
 You configure the agent using a JSON file. The agent expects the configuration
 file to be in `/opt/artifactory-agent/data/config.json` on startup.
@@ -132,7 +139,7 @@ The following snippet shows a sample configuration:
 Create a configuration file and save it somewhere on the server where you plan
 to run the agent. For example, `/var/opt/artifactory-agent/config.json`.
 
-### Run the agent
+#### Run the agent
 
 The following example shows how to run the Docker Scout Artifactory agent using
 `docker run`. This command creates a bind mount for the directory containing the
@@ -153,7 +160,7 @@ $ docker run \
   docker/artifactory-agent:v1
 ```
 
-## View analysis results
+### View analysis results
 
 You can view the image analysis results in the Docker Scout web UI.
 
